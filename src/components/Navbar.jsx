@@ -1,6 +1,6 @@
-import { Link, NavLink } from 'react-router-dom';
-import { Sun, Moon, Menu, X, Wallet, Phone, Mail, ChevronDown, Check, ExternalLink, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Sun, Moon, Menu, X, Wallet, Phone, Mail, ChevronDown, Check, ExternalLink, RefreshCw, UserCheck, User, LogOut } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useWallet } from '../context/WalletContext';
 import { SUPPORTED_NETWORKS } from '../contracts/contractConfig';
@@ -17,11 +17,31 @@ const links = [
 ];
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const { dark, toggle } = useTheme();
   const { address, shortAddress, balance, chainId, networkName, connecting, connect, disconnect, switchNetwork } = useWallet();
   const [open, setOpen] = useState(false);
   const [walletDropdown, setWalletDropdown] = useState(false);
   const [networkDropdown, setNetworkDropdown] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    try {
+      const savedUser = localStorage.getItem('landchain_current_user');
+      if (savedUser) {
+        setCurrentUser(JSON.parse(savedUser));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('landchain_current_user');
+    localStorage.removeItem('landchain_auth_token');
+    setCurrentUser(null);
+    navigate('/login');
+  };
 
   return (
     <>
@@ -29,7 +49,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-5 h-8 flex items-center justify-between">
           <span className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Ministry of Revenue &amp; Land Records — Government of Uttar Pradesh (Blockchain Testnet)
+            राष्ट्रीय डिजिटल भू-अभिलेख एवं कैडस्ट्रल प्रणाली (DILRMP) — All 28 States &amp; 8 UTs (Blockchain Powered)
           </span>
           <div className="flex items-center gap-4 text-slate-400">
             <span className="flex items-center gap-1.5"><Phone size={11} /> 1800-180-0101</span>
@@ -66,6 +86,37 @@ export default function Navbar() {
             >
               {dark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
             </button>
+
+            {/* Login / User Badge */}
+            {currentUser ? (
+              <div className="flex items-center gap-1.5">
+                <Link
+                  to={currentUser.role === 'authority' ? '/authority' : currentUser.role === 'admin' ? '/admin' : '/dashboard'}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-700/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold hover:bg-emerald-100 transition-colors"
+                >
+                  <User size={13} />
+                  <span className="max-w-[110px] truncate">{currentUser.name.split(' ')[0]}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-200/70 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 font-bold">
+                    {currentUser.role === 'authority' ? 'तहसीलदार' : currentUser.role === 'admin' ? 'प्रशासक' : 'नागरिक'}
+                  </span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  title="लॉगआउट करें (Logout)"
+                  className="p-2 text-slate-400 hover:text-red-500 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs transition-colors"
+                >
+                  <LogOut size={13} />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-blue-500/40 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-xs font-bold transition-all shadow-xs"
+              >
+                <UserCheck size={14} className="text-blue-600 dark:text-blue-400" />
+                <span>लॉगिन / रजिस्टर</span>
+              </Link>
+            )}
 
             {/* Network Selector */}
             {address && (
@@ -177,7 +228,42 @@ export default function Navbar() {
                 {l.label}
               </NavLink>
             ))}
-            <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+
+            {/* Mobile Login / User Profile Link */}
+            <div className="border-t border-slate-100 dark:border-slate-800 pt-2 flex flex-col gap-2">
+              {currentUser ? (
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    👤 {currentUser.name} ({currentUser.roleLabel || currentUser.role})
+                  </span>
+                  <button
+                    onClick={() => { handleLogout(); setOpen(false); }}
+                    className="text-xs text-red-500 hover:underline"
+                  >
+                    लॉगआउट (Logout)
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="py-2 px-3 text-center rounded-xl bg-blue-600 text-white text-xs font-bold shadow-xs"
+                  >
+                    🔑 लॉगिन (Login)
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setOpen(false)}
+                    className="py-2 px-3 text-center rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold"
+                  >
+                    📝 पंजीकरण (Register)
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
               <span className="text-xs text-slate-500">Theme</span>
               <button onClick={toggle} className="p-2 rounded-md border border-slate-200 dark:border-slate-700">
                 {dark ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
