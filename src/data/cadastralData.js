@@ -1173,35 +1173,80 @@ const LOCAL_OVERRIDE_KEY = 'landchain_parcel_overrides_v2';
 const LOCAL_HISTORY_KEY = 'landchain_history_v2';
 
 /**
- * Get all historical and current owners for any land parcel
+ * Get all historical and current owners for any land parcel (पूर्व स्वामियों की सम्पूर्ण वंशावली)
  */
 export function getLandOwnershipHistory(landId, currentOwnerFallback = 'Current Owner') {
-  const baseChain = defaultOwnershipChains[landId] ? [...defaultOwnershipChains[landId]] : [
-    {
-      owner: 'Ram Sunder (राम सुंदर)',
-      fatherName: 'Late Kashi Ram',
-      role: 'मूल खातेदार (Original Settled Owner)',
-      date: '2008-03-10',
-      deedType: 'राजस्व बंदोबस्त अभिलेख',
-      bahiNo: 'बही 1, जिल्द 1420',
-      consideration: 'पैतृक बंदोबस्त',
-      subRegistrar: 'सदर रजिस्ट्रार कार्यालय',
-      txHash: '0x1029384756102938475610293847561029384756',
-      isCurrent: false,
-    },
-    {
-      owner: currentOwnerFallback,
-      fatherName: 'Not recorded',
-      role: 'पंजीकृत स्वामी (Registered Owner)',
-      date: '2024-01-15',
-      deedType: 'पंजीकृत बैनामा (Sale Deed)',
-      bahiNo: 'बही 1, जिल्द 5400',
-      consideration: 'बाजार भाव',
-      subRegistrar: 'उप-निबंधक कार्यालय',
-      txHash: '0x8f3ac92e11892bf3d9428571ea89201948123985',
-      isCurrent: true,
-    },
-  ];
+  let baseChain = [];
+
+  if (defaultOwnershipChains[landId]) {
+    baseChain = defaultOwnershipChains[landId].map((item, idx, arr) => ({
+      ...item,
+      hop: idx + 1,
+      fromOwner: idx === 0 ? 'राजस्व परिषद शासन / पैतृक बंदोबस्त' : arr[idx - 1].owner,
+      toOwner: item.owner,
+      stampDuty: item.stampDuty || (item.consideration && item.consideration.includes('₹') ? `₹${Math.round(parseInt(item.consideration.replace(/\D/g, '') || 3000000) * 0.07).toLocaleString('en-IN')}` : '₹1,50,000'),
+      mutationOrderNo: item.mutationOrderNo || `MUT-${2010 + idx * 4}-${Math.floor(100000 + idx * 2891)}`,
+      status: 'प्रमाणित व अभिलेखित (Legally Recorded)',
+    }));
+  } else {
+    // Rich 3-step historical lineage for any dynamic or newly created parcel
+    baseChain = [
+      {
+        hop: 1,
+        fromOwner: 'राजस्व परिषद शासन / पैतृक चकबंदी बंदोबस्त (Settlement Grant)',
+        toOwner: 'पं. राधे श्याम मिश्र (Pt. Radhey Shyam Mishra)',
+        owner: 'पं. राधे श्याम मिश्र (Pt. Radhey Shyam Mishra)',
+        fatherName: 'स्व. राम नरेश मिश्र',
+        role: 'मूल पैतृक खातेदार (Original Settled Landowner)',
+        date: '2004-06-18',
+        deedType: 'राजस्व चकबंदी बंदोबस्त (Consolidation RoR Form 45)',
+        bahiNo: 'बही 1, जिल्द 1420, पृष्ठ 12-24',
+        consideration: 'पैतृक बंदोबस्त (Ancestral Grant)',
+        stampDuty: 'शासन विमुक्त (Exempted)',
+        mutationOrderNo: 'MUT-2004-189201',
+        subRegistrar: 'तहसील राजस्व न्यायालय सदर',
+        txHash: '0x1029384756102938475610293847561029384756',
+        status: 'प्रमाणित व अभिलेखित (Legally Recorded)',
+        isCurrent: false,
+      },
+      {
+        hop: 2,
+        fromOwner: 'पं. राधे श्याम मिश्र (Pt. Radhey Shyam Mishra)',
+        toOwner: 'हरीश चंद्र गुप्त (Harish Chandra Gupta)',
+        owner: 'हरीश चंद्र गुप्त (Harish Chandra Gupta)',
+        fatherName: 'लाला दीनदयाल गुप्त',
+        role: 'प्रथम पंजीकृत क्रेता (First Registered Purchaser)',
+        date: '2016-09-22',
+        deedType: 'पंजीकृत बैनामा विक्रय विलेख (Registered Sale Deed)',
+        bahiNo: 'बही 1, जिल्द 3820, पृष्ठ 85-99',
+        consideration: '₹28,50,000',
+        stampDuty: '₹1,99,500 (7% Stamp Duty Paid)',
+        mutationOrderNo: 'MUT-2016-492810',
+        subRegistrar: 'उप-निबंधक कार्यालय सदर',
+        txHash: '0x4829104857201948572910485729104857291048',
+        status: 'प्रमाणित व अभिलेखित (Legally Recorded)',
+        isCurrent: false,
+      },
+      {
+        hop: 3,
+        fromOwner: 'हरीश चंद्र गुप्त (Harish Chandra Gupta)',
+        toOwner: currentOwnerFallback,
+        owner: currentOwnerFallback,
+        fatherName: 'दर्ज राजस्व अभिलेख अनुसार',
+        role: 'पंजीकृत स्वामी (Registered Owner)',
+        date: '2023-04-10',
+        deedType: 'पंजीकृत विक्रय विलेख एवं नामांतरण (Conveyance & Mutation)',
+        bahiNo: 'बही 1, जिल्द 5400, पृष्ठ 110-128',
+        consideration: '₹45,00,000',
+        stampDuty: '₹3,15,000 (7% Stamp Duty Paid)',
+        mutationOrderNo: 'MUT-2023-882910',
+        subRegistrar: 'डिजिटल उप-निबंधक कार्यालय',
+        txHash: '0x8f3ac92e11892bf3d9428571ea89201948123985',
+        status: 'प्रमाणित व सक्रिय (Active Title Holder)',
+        isCurrent: true,
+      },
+    ];
+  }
 
   // Check if any dynamic transfers exist in localStorage for this land
   try {
@@ -1215,18 +1260,34 @@ export function getLandOwnershipHistory(landId, currentOwnerFallback = 'Current 
           item.isCurrent = false;
         });
 
-        // Append all new transfers
+        // Append all new transfers in exact chronological sequence
         dynamicTransfers.forEach((tr, idx) => {
+          const previousHolder = idx === 0 
+            ? baseChain[baseChain.length - 1]?.toOwner || baseChain[baseChain.length - 1]?.owner || 'पूर्व स्वामी'
+            : dynamicTransfers[idx - 1]?.owner || 'पूर्व स्वामी';
+
+          const hopNum = baseChain.length + idx + 1;
+          const priceNum = parseInt((tr.salePrice || '4500000').replace(/\D/g, '')) || 4500000;
+          const stampCalc = tr.stampDuty || `₹${Math.round(priceNum * 0.07).toLocaleString('en-IN')} (7% स्टाम्प शुल्क)`;
+
           baseChain.push({
+            hop: hopNum,
+            fromOwner: tr.fromOwner || tr.sellerName || previousHolder,
+            toOwner: tr.owner,
             owner: tr.owner,
-            fatherName: tr.fatherName || 'पिता: दर्ज विलेख अनुसार',
-            role: tr.role || 'क्रेता (नया पंजीकृत स्वामी - Transferee)',
+            fatherName: tr.fatherName || 'दर्ज विलेख अनुसार',
+            sellerAadhaar: tr.sellerAadhaar || 'XXXX XXXX 8912',
+            buyerAadhaar: tr.buyerAadhaar || 'XXXX XXXX 4102',
+            role: tr.role || 'क्रेता (नया पंजीकृत स्वामी - Current Transferee)',
             date: tr.date || new Date().toISOString().split('T')[0],
             deedType: tr.reason || tr.deedType || 'पंजीकृत विक्रय विलेख (Blockchain Transfer Deed)',
-            bahiNo: `स्मार्ट कॉन्ट्रैक्ट दाखिल-खारिज #${1000 + idx}`,
-            consideration: tr.salePrice || '₹35,00,000 (चुकाया गया)',
-            subRegistrar: 'डिजिटल सब-रजिस्ट्रार पोर्टल',
-            txHash: tr.txHash || '0x' + Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+            bahiNo: tr.deedNo || `स्मार्ट कॉन्ट्रैक्ट बैनामा क्रमांक REG-${1000 + hopNum}/2026`,
+            consideration: tr.salePrice || '₹45,00,000',
+            stampDuty: stampCalc,
+            mutationOrderNo: tr.mutationOrderNo || `MUT-2026-${Math.floor(100000 + Math.random() * 900000)}`,
+            subRegistrar: 'डिजिटल सब-रजिस्ट्रार एवं राजस्व न्यायालय',
+            txHash: tr.txHash || tr.fullTxHash || '0x' + Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+            status: 'दाखिल-खारिज स्वीकृत व ब्लॉकचेन प्रमाणित (Verified & Mutated)',
             isCurrent: idx === dynamicTransfers.length - 1, // Only the very latest is the current owner
           });
         });

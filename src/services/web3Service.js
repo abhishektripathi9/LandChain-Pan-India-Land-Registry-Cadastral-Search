@@ -291,7 +291,7 @@ export async function verifyLandOnChain(landId, status, reason = '', authorityAc
 }
 
 /**
- * Transfer Land Ownership
+ * Transfer Land Ownership (पूर्णतः सुरक्षित स्वामित्व हस्तांतरण एवं वंशावली पंजीकरण)
  */
 export async function transferLandOwnershipOnChain({
   landId,
@@ -300,6 +300,12 @@ export async function transferLandOwnershipOnChain({
   transferReason,
   salePrice,
   fatherName,
+  sellerName,
+  sellerFatherName,
+  sellerAadhaar,
+  buyerAadhaar,
+  buyerPhone,
+  stampDuty,
   account,
 }) {
   let txHash = '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
@@ -318,10 +324,29 @@ export async function transferLandOwnershipOnChain({
     }
   }
 
+  // Calculate numbers
+  const priceClean = salePrice || '₹45,00,000';
+  const priceNum = parseInt(priceClean.replace(/\D/g, '')) || 4500000;
+  const stampCalculated = stampDuty || `₹${Math.round(priceNum * 0.07).toLocaleString('en-IN')}`;
+  const mutationOrder = `MUT-2026-${Math.floor(100000 + Math.random() * 900000)}`;
+  const deedNumber = `REG-${Math.floor(1000 + Math.random() * 9000)}/VOL-${Math.floor(100 + Math.random() * 900)}`;
+  const transferDate = new Date().toISOString().split('T')[0];
+
   // Update current owner in lands
   const currentLands = getStoredLands();
+  const currentLandItem = currentLands.find((l) => l.id === landId);
+  const resolvedSeller = sellerName || currentLandItem?.owner || 'पूर्व पंजीकृत स्वामी';
+
   const updatedLands = currentLands.map((l) =>
-    l.id === landId ? { ...l, owner: buyerName, ownerAddress: buyerAddress, lastUpdated: new Date().toISOString().split('T')[0] } : l
+    l.id === landId
+      ? {
+          ...l,
+          owner: buyerName,
+          previousOwner: resolvedSeller,
+          ownerAddress: buyerAddress,
+          lastUpdated: transferDate,
+        }
+      : l
   );
   saveStoredLands(updatedLands);
 
@@ -334,14 +359,26 @@ export async function transferLandOwnershipOnChain({
     const parsedHist = JSON.parse(rawHist);
     const itemHist = parsedHist[landId] || [];
     itemHist.push({
+      fromOwner: resolvedSeller,
+      sellerName: resolvedSeller,
+      sellerFatherName: sellerFatherName || 'दर्ज विलेख अनुसार',
+      sellerAadhaar: sellerAadhaar || 'XXXX XXXX 8912',
       owner: buyerName,
+      toOwner: buyerName,
       fatherName: fatherName || 'दर्ज विलेख अनुसार',
+      buyerAadhaar: buyerAadhaar || 'XXXX XXXX 4102',
+      buyerPhone: buyerPhone || '+91 98765 43210',
+      buyerAddress: buyerAddress,
       role: 'क्रेता (दाखिल-खारिज पश्चात वर्तमान स्वामी)',
-      date: new Date().toISOString().split('T')[0],
+      date: transferDate,
       txHash: txHash.slice(0, 8) + '...' + txHash.slice(-4),
       fullTxHash: txHash,
       reason: transferReason || 'पंजीकृत बैनामा (Registered Conveyance Deed)',
-      salePrice: salePrice || '₹45,00,000',
+      salePrice: priceClean,
+      stampDuty: stampCalculated,
+      mutationOrderNo: mutationOrder,
+      deedNo: deedNumber,
+      status: 'दाखिल-खारिज स्वीकृत व ब्लॉकचेन प्रमाणित',
     });
     parsedHist[landId] = itemHist;
     localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(parsedHist));
@@ -355,13 +392,25 @@ export async function transferLandOwnershipOnChain({
     hash: txHash.slice(0, 8) + '...' + txHash.slice(-4),
     fullHash: txHash,
     block: 19835200 + Math.floor(Math.random() * 500),
-    type: 'Ownership Transfer',
+    type: 'Ownership Transfer (दाखिल-खारिज)',
     landId: landId,
     gas: '0.0031 ETH',
     timestamp: new Date().toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
-    from: account ? formatAddress(account) : '0x71C...8bA2',
+    from: resolvedSeller,
+    to: buyerName,
   };
   saveStoredTransactions([newTx, ...currentTxs]);
 
-  return { landId, newOwner: buyerName, txHash };
+  return {
+    landId,
+    newOwner: buyerName,
+    sellerName: resolvedSeller,
+    fatherName,
+    txHash,
+    salePrice: priceClean,
+    stampDuty: stampCalculated,
+    mutationOrderNo: mutationOrder,
+    deedNo: deedNumber,
+    date: transferDate,
+  };
 }
