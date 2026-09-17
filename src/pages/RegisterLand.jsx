@@ -408,12 +408,18 @@ export default function RegisterLand() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-3">
-              <Link to="/search" className="flex-1">
-                <Button variant="outline" className="w-full">View in Search</Button>
+            <div className="grid grid-cols-2 gap-2 pt-3">
+              <Link to="/search">
+                <Button variant="outline" className="w-full text-xs">🔍 Registry Search</Button>
               </Link>
-              <Link to="/explorer" className="flex-1">
-                <Button className="w-full">View in Explorer</Button>
+              <Link to="/bhulekh">
+                <Button variant="outline" className="w-full text-xs">🗺️ Bhoolekh Map</Button>
+              </Link>
+              <Link to="/verification-status">
+                <Button variant="outline" className="w-full text-xs">📋 Verification Status</Button>
+              </Link>
+              <Link to="/explorer">
+                <Button className="w-full text-xs">⚡ Explorer</Button>
               </Link>
             </div>
           </div>

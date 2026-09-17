@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { WalletProvider } from './context/WalletContext';
 
@@ -36,10 +36,13 @@ export default function App() {
             <Route path="/upload-documents" element={<UploadDocuments />} />
             <Route path="/verification-status" element={<VerificationStatus />} />
             <Route path="/transfer-ownership" element={<TransferOwnership />} />
+            <Route path="/transfer" element={<Navigate to="/transfer-ownership" replace />} />
             <Route path="/explorer" element={<BlockchainExplorer />} />
             <Route path="/land-history" element={<LandHistory />} />
+            <Route path="/history" element={<Navigate to="/land-history" replace />} />
             <Route path="/search" element={<SearchLand />} />
             <Route path="/bhulekh" element={<BhulekhMap />} />
+            <Route path="/map" element={<Navigate to="/bhulekh" replace />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/authority" element={<AuthorityDashboard />} />

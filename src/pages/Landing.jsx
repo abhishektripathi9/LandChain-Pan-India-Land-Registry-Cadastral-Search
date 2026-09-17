@@ -83,15 +83,25 @@ export default function Landing() {
           </p>
           <div className="flex flex-wrap gap-3 mt-8">
             <Link to="/bhulekh">
-              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-lg shadow-emerald-600/20">
-                <Map size={16} /> भूलेख नक्शा (खेत खोजक)
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 shadow-lg shadow-emerald-600/20 font-bold">
+                <Map size={16} /> भूलेख नक्शा (Bhoolekh)
               </Button>
             </Link>
-            <Link to="/register"><Button size="lg">Register</Button></Link>
-            <Link to="/login"><Button variant="outline" size="lg">Login</Button></Link>
-            <Button variant="secondary" size="lg" icon={Wallet} onClick={connect} disabled={connecting}>
-              {address ? address : connecting ? 'Connecting…' : 'Connect Wallet'}
-            </Button>
+            <Link to="/search">
+              <Button size="lg" variant="outline" className="flex items-center gap-2 font-bold">
+                <Search size={16} /> जमीन खोजें (Search)
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-500 text-white font-bold">
+                लॉगिन (Login)
+              </Button>
+            </Link>
+            <Link to="/register">
+              <Button variant="outline" size="lg" className="font-bold">
+                पंजीकरण (Register)
+              </Button>
+            </Link>
           </div>
           <div className="flex gap-8 mt-10">
             {[['Registered Lands', stats.registeredLands], ['Verified Authorities', stats.totalAuthorities], ['On-chain Transactions', stats.totalTransactions]].map(([label, val]) => (

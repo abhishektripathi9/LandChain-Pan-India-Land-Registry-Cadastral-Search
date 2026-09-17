@@ -20,19 +20,24 @@ export default function Footer() {
           </div>
         </div>
         <div>
-          <p className="font-semibold text-sm mb-3">Platform</p>
+          <p className="font-semibold text-sm mb-3">Platform &amp; Bhoolekh</p>
           <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
-            <li><Link to="/search" className="hover:text-primary">Search Land</Link></li>
+            <li><Link to="/bhulekh" className="hover:text-primary">Bhoolekh GIS Map (भूलेख नक्शा)</Link></li>
+            <li><Link to="/search" className="hover:text-primary">Registry Search (भूमि खोजें)</Link></li>
+            <li><Link to="/transfer-ownership" className="hover:text-primary">Transfer Title (स्वामित्व हस्तांतरण)</Link></li>
+            <li><Link to="/land-history" className="hover:text-primary">Title History (स्वामित्व वंशावली)</Link></li>
             <li><Link to="/explorer" className="hover:text-primary">Blockchain Explorer</Link></li>
-            <li><Link to="/about" className="hover:text-primary">About Project</Link></li>
           </ul>
         </div>
         <div>
-          <p className="font-semibold text-sm mb-3">Support</p>
+          <p className="font-semibold text-sm mb-3">Portal &amp; Support</p>
           <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
-            <li><Link to="/contact" className="hover:text-primary">Contact Us</Link></li>
-            <li><Link to="/login" className="hover:text-primary">Login</Link></li>
-            <li><Link to="/register" className="hover:text-primary">Register</Link></li>
+            <li><Link to="/login" className="hover:text-primary font-bold text-blue-600 dark:text-blue-400">लॉगिन (Login)</Link></li>
+            <li><Link to="/register" className="hover:text-primary font-bold text-blue-600 dark:text-blue-400">नया पंजीकरण (Register)</Link></li>
+            <li><Link to="/dashboard" className="hover:text-primary">Citizen Dashboard</Link></li>
+            <li><Link to="/authority" className="hover:text-primary">Authority Verification</Link></li>
+            <li><Link to="/about" className="hover:text-primary">About Project</Link></li>
+            <li><Link to="/contact" className="hover:text-primary">Helpdesk &amp; Support</Link></li>
           </ul>
         </div>
       </div>

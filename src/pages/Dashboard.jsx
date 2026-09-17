@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LandPlot, Clock, CheckCircle2, Activity, FilePlus2, UploadCloud, ArrowLeftRight, Search, Map, Sparkles } from 'lucide-react';
+import { LandPlot, Clock, CheckCircle2, Activity, FilePlus2, UploadCloud, ArrowLeftRight, Search, Map, Sparkles, History, ShieldCheck, ArrowRight } from 'lucide-react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { userNav } from '../data/navConfig';
 import StatCard from '../components/StatCard';
@@ -12,9 +12,11 @@ import { useWallet } from '../context/WalletContext';
 
 const quickActions = [
   { to: '/bhulekh', label: 'Bhoolekh (भूलेख नक्शा)', icon: Map },
-  { to: '/search', label: 'Search Land', icon: Search },
-  { to: '/register-land', label: 'Register Land', icon: FilePlus2 },
-  { to: '/transfer-ownership', label: 'Transfer Title', icon: ArrowLeftRight },
+  { to: '/search', label: 'Search Land (खोजें)', icon: Search },
+  { to: '/register-land', label: 'Register Land (नया)', icon: FilePlus2 },
+  { to: '/transfer-ownership', label: 'Transfer Title (हस्तांतरण)', icon: ArrowLeftRight },
+  { to: '/land-history', label: 'Title History (वंशावली)', icon: History },
+  { to: '/verification-status', label: 'Verification (सत्यापन)', icon: ShieldCheck },
 ];
 
 export default function Dashboard() {
@@ -100,15 +102,15 @@ export default function Dashboard() {
 
         <Card className="p-5">
           <h3 className="font-display font-semibold mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {quickActions.map((qa) => (
               <Link
                 key={qa.label}
                 to={qa.to}
-                className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-colors text-center"
+                className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-colors text-center"
               >
-                <qa.icon size={20} className="text-primary" />
-                <span className="text-xs font-medium">{qa.label}</span>
+                <qa.icon size={18} className="text-primary" />
+                <span className="text-[11px] font-medium leading-tight">{qa.label}</span>
               </Link>
             ))}
           </div>
@@ -117,7 +119,7 @@ export default function Dashboard() {
 
       <Card className="p-5 mt-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display font-semibold">My Land Holdings</h3>
+          <h3 className="font-display font-semibold">My Land Holdings (पंजीकृत भूमि अभिलेख)</h3>
           <Link to="/search" className="text-xs text-primary font-semibold hover:underline">View all</Link>
         </div>
         <div className="overflow-x-auto">
@@ -130,17 +132,31 @@ export default function Dashboard() {
                 <th className="pb-3 font-medium">Type</th>
                 <th className="pb-3 font-medium">Valuation</th>
                 <th className="pb-3 font-medium">Status</th>
+                <th className="pb-3 font-medium text-right">त्वरित एक्शन</th>
               </tr>
             </thead>
             <tbody>
               {landsList.slice(0, 5).map((l) => (
                 <tr key={l.id} className="border-b border-slate-50 dark:border-slate-800/60 last:border-0 text-xs">
                   <td className="py-3 font-mono font-semibold text-primary">{l.id}</td>
-                  <td className="py-3 font-medium">{l.surveyNo}</td>
+                  <td className="py-3 font-medium">#{l.surveyNo}</td>
                   <td className="py-3 text-slate-500 dark:text-slate-400">{l.location || `${l.village}, ${l.district}`}</td>
                   <td className="py-3">{l.type}</td>
                   <td className="py-3 font-semibold">{l.value}</td>
                   <td className="py-3"><StatusBadge status={l.status} /></td>
+                  <td className="py-3 text-right">
+                    <div className="inline-flex items-center gap-1.5">
+                      <Link to="/bhulekh" className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                        🗺️ नक्शा
+                      </Link>
+                      <Link to="/transfer-ownership" className="px-2 py-1 rounded bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                        🤝 ट्रांसफर
+                      </Link>
+                      <Link to="/land-history" className="px-2 py-1 rounded bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 text-[11px] font-medium text-blue-700 dark:text-blue-300">
+                        📜 इतिहास
+                      </Link>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
