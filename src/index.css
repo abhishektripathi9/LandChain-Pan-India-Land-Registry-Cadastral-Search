@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import "leaflet/dist/leaflet.css";
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: 'Lexend', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --color-primary: #2563EB;
+  --color-primary-dark: #1D4ED8;
+  --color-secondary: #4F46E5;
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-danger: #DC2626;
+  --color-bg: #F8FAFC;
+  --color-card: #FFFFFF;
+  --color-ink: #0F172A;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  transition: background-color .3s ease, color .3s ease;
+}
+
+.dark body { background-color: #0B1120; color: #E2E8F0; }
+
+h1, h2, h3, h4, .font-display { font-family: var(--font-display); }
+
+.glass {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+.dark .glass {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* official top strip, like government portals */
+.gov-strip {
+  background: #0F172A;
+  color: #E2E8F0;
+}
+.dark .gov-strip { background: #050912; }
+
+.chain-track { position: relative; }
+.chain-track::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0; height: 2px;
+  background: repeating-linear-gradient(90deg, var(--color-primary) 0 8px, transparent 8px 16px);
+  opacity: .35; z-index: 0;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 8px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
+
+@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+.skeleton {
+  background: linear-gradient(90deg, #E2E8F0 0px, #F1F5F9 40px, #E2E8F0 80px);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #1E293B 0px, #334155 40px, #1E293B 80px);
+  background-size: 800px 100%;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* BhuNaksha Cadastral Map Overlays */
+.khasra-label-badge {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  color: #F8FAFC;
+  font-weight: 700;
+  font-size: 11px;
+  font-family: 'Lexend', monospace;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  pointer-events: none;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.khasra-label-badge.active-parcel {
+  background: #2563EB;
+  border-color: #93C5FD;
+  color: #FFFFFF;
+  box-shadow: 0 0 14px rgba(37, 99, 235, 0.8);
+}
+
+.pulsing-gps-pin {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.pulsing-gps-pin .core-dot {
+  width: 14px;
+  height: 14px;
+  background: #3B82F6;
+  border: 2.5px solid #FFFFFF;
+  border-radius: 50%;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.pulsing-gps-pin .pulse-wave {
+  width: 24px;
+  height: 24px;
+  background: rgba(59, 130, 246, 0.45);
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: gpsPulse 2s infinite ease-out;
+}
+
+@keyframes gpsPulse {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-khatauni, #printable-khatauni * {
+    visibility: visible;
+  }
+  #printable-khatauni {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
+
